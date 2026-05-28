@@ -1,14 +1,18 @@
 {
   "domain": "alarm_clock",
   "name": "Alarm Clock",
-  "documentation": "https://github.com/DGTLMagician/hass-alarmclock",
+  "documentation": "https://github.com/rhythmcreative/hass-alarmclock",
   "dependencies": [],
-  "codeowners": ["@DGTLMagician"],
-  "requirements": ["dateparser>=1.0.0"],
+  "codeowners": [
+    "@DGTLMagician"
+  ],
+  "requirements": [
+    "dateparser>=1.0.0"
+  ],
   "iot_class": "local_push",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "config_flow": true,
-  "issue_tracker": "https://github.com/DGTLMagician/hass-alarmclock/issues",
+  "issue_tracker": "https://github.com/rhythmcreative/hass-alarmclock/issues",
   "homeassistant": "2024.1.0",
   "icon": "mdi:alarm"
 }
