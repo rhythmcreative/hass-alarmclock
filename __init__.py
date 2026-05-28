@@ -170,4 +170,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Unregister services if this is the last entry
             await async_unregister_services(hass)
     
-    return unload_ok# test fix
+    return unload_ok
