@@ -1,0 +1,32 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "name": "Name",
+          "snooze_duration": "Snooze duration (minutes)"
+        }
+      }
+    }
+  },
+  "services": {
+    "set_alarm": {
+      "name": "Set alarm",
+      "description": "Sets the alarm time.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "The alarm switch entity."
+        },
+        "time": {
+          "name": "Time",
+          "description": "Time string (e.g. 7:00, tomorrow at 8am)."
+        },
+        "sound": {
+          "name": "Sound",
+          "description": "Custom sound file name in the local media folder."
+        }
+      }
+    }
+  }
+}
