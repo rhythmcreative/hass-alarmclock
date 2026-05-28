@@ -1,5 +1,7 @@
 # Home Assistant Alarm Clock Integration (Enhanced "Alexa-Style")
 
+![Version](https://img.shields.io/badge/version-1.1.0-blue) ![Status](https://img.shields.io/badge/status-actively%20maintained-brightgreen)
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
