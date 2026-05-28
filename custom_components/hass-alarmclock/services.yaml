@@ -12,9 +12,23 @@ set_alarm:
       name: Time
       description: >
         Time to set the alarm for.
-        Supports both time picker and text input (e.g., "7:00" or "7 in the morning")
+        Supports both time picker and text input (e.g., "7:00", "7 in the morning", "tomorrow at 8").
       required: true
       example: "07:00"
+      selector:
+        text:
+    sound:
+      name: Sound
+      description: Custom sound file for this alarm.
+      required: false
+      example: "wekker.mp3"
+      selector:
+        text:
+    repeat:
+      name: Repeat
+      description: Repetition pattern (daily, weekdays, weekends, or list of days 0-6).
+      required: false
+      example: "daily"
       selector:
         text:
 

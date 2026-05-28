@@ -58,6 +58,14 @@ class AlarmStatusSensor(SensorEntity):
         """Return the status."""
         return self._device.status
 
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return extra state attributes."""
+        return {
+            "alarm_sound": self._device.alarm_sound,
+            "repeat": self._device.repeat,
+        }
+
 class AlarmCountdownSensor(CoordinatorEntity, SensorEntity):
     """Sensor for countdown until alarm."""
 

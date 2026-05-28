@@ -1,0 +1,13 @@
+# Add this to your configuration.yaml to enable LLM interaction
+# Or the integration handles it via intent.py (already implemented)
+
+intent_script:
+  HassAlarmClockSet:
+    action:
+      service: alarm_clock.set_alarm
+      data:
+        entity_id: "switch.{{ name | replace(' ', '_') | lower }}_{{ name | replace(' ', '_') | lower }}"
+        time: "{{ time }}"
+        sound: "{{ sound | default('wekker.mp3') }}"
+    speech:
+      text: "Vale, he puesto la alarma en {{ name }} para las {{ time }}."

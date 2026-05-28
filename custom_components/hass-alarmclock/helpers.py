@@ -15,12 +15,14 @@ class Language:
                  months: list[str],
                  relative_words: dict[str, str | list[str]],
                  time_words: dict[str, str | list[str]],
+                 repeat_words: dict[str, str | list[str]],
                  prepositions: list[str]):
         self.name = name
         self.weekdays = weekdays
         self.months = months
         self.relative_words = relative_words
         self.time_words = time_words
+        self.repeat_words = repeat_words
         self.prepositions = prepositions
 
 # Define supported languages
@@ -54,6 +56,12 @@ LANGUAGES = {
             'evening': 'evening',
             'night': 'night'
         },
+        repeat_words={
+            'daily': ['daily', 'every day', 'everyday'],
+            'weekdays': ['weekdays', 'working days'],
+            'weekends': ['weekends', 'weekend'],
+            'every': 'every'
+        },
         prepositions=['for', 'on', 'at', 'in']
     ),
     'nl': Language(
@@ -85,7 +93,50 @@ LANGUAGES = {
             'evening': 'avond',
             'night': 'nacht'
         },
+        repeat_words={
+            'daily': ['dagelijks', 'elke dag'],
+            'weekdays': ['werkdagen'],
+            'weekends': ['weekend'],
+            'every': 'elke'
+        },
         prepositions=['voor', 'op', 'om', 'in']
+    ),
+    'es': Language(
+        name='Spanish',
+        weekdays=['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'],
+        months=['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 
+                'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+        relative_words={
+            'today': 'hoy',
+            'tomorrow': 'mañana',
+            'days_offset': {
+                'pasado mañana': 2,
+                'en 2 días': 2,
+                'en dos días': 2,
+            },
+            'in': ['en', 'dentro de'],
+            'days': ['día', 'días'],
+            'number_words': {
+                'uno': 1, 'dos': 2, 'tres': 3, 'cuatro': 4, 'cinco': 5,
+                'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10
+            }
+        },
+        time_words={
+            'at': ['a las', 'a la', 'alas', 'ala'],
+            'hour': ['hora', 'horas'],
+            'minute': ['minuto', 'minutos'],
+            'morning': 'mañana',
+            'afternoon': 'tarde',
+            'evening': 'noche',
+            'night': 'noche'
+        },
+        repeat_words={
+            'daily': ['diario', 'diariamente', 'todos los días', 'cada día'],
+            'weekdays': ['entre semana', 'días laborables', 'laborables'],
+            'weekends': ['fines de semana', 'finde'],
+            'every': 'cada'
+        },
+        prepositions=['por', 'en', 'a', 'para']
     )
 }
 
@@ -99,6 +150,36 @@ class DateTimeParser:
             
         self.lang = LANGUAGES[language]
         self.reference_date = dt_util.now().date()
+
+    def detect_repeat(self, text: str) -> list[int] | str | None:
+        """Detect repetition pattern. Returns list of weekday indices (0-6) or 'daily'."""
+        text = text.lower().strip()
+        
+        # Check daily patterns
+        for word in self.lang.repeat_words['daily']:
+            if word in text:
+                return 'daily'
+                
+        # Check weekdays (working days)
+        for word in self.lang.repeat_words['weekdays']:
+            if word in text:
+                return [0, 1, 2, 3, 4]
+                
+        # Check weekends
+        for word in self.lang.repeat_words['weekends']:
+            if word in text:
+                return [5, 6]
+                
+        # Check specific weekdays
+        days = []
+        for i, day_name in enumerate(self.lang.weekdays):
+            if day_name in text:
+                days.append(i)
+        
+        if days:
+            return days
+            
+        return None
 
     def normalize_date_string(self, date_str: str) -> tuple[str, str]:
         """Normalize date string and extract time part."""
@@ -315,9 +396,11 @@ class DateTimeParser:
         
         raise ValueError(f"Could not parse date: {date_str}")
 
-    def parse(self, text: str) -> tuple[date, time]:
-        """Parse full date/time string."""
+    def parse(self, text: str) -> tuple[date, time, list[int] | str | None]:
+        """Parse full date/time string with repeat support."""
         text = text.lower().strip()
+        
+        repeat = self.detect_repeat(text)
         
         # Split into date and time components
         date_str, time_str = self.normalize_date_string(text)
@@ -329,7 +412,7 @@ class DateTimeParser:
             # If parsing as date fails, try parsing the entire string as just a time
             try:
                 time_obj = self.parse_time(text)
-                return self._get_appropriate_date(time_obj), time_obj
+                return self._get_appropriate_date(time_obj), time_obj, repeat
             except ValueError:
                 # If that fails too, re-raise the original date parsing error
                 raise ValueError(f"Could not parse date: {text}")
@@ -348,7 +431,7 @@ class DateTimeParser:
             _LOGGER.debug(f"Time parsing failed: {e}")
             time_obj = time(0, 0)  # Default to midnight
         
-        return date_obj, time_obj
+        return date_obj, time_obj, repeat
 
     def _get_appropriate_date(self, time_obj: time) -> date:
         """Get appropriate date based on the time (today or tomorrow)."""
@@ -361,7 +444,7 @@ class DateTimeParser:
         
         return date_obj
 
-def parse_string(text: str, hass: HomeAssistant = None) -> tuple[date, time]:
+def parse_string(text: str, hass: HomeAssistant = None) -> tuple[date, time, list[int] | str | None]:
     """Parse date/time string using system language."""
     language = 'en'
     if hass:

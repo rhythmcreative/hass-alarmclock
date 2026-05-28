@@ -19,6 +19,7 @@ from .const import (
     PLATFORMS,
 )
 from .device import AlarmClockDevice
+from .intent import async_setup_intents
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,9 +30,11 @@ async def handle_set_alarm(call):
     _LOGGER.debug(f"Service call data: {json.dumps(call.data, indent=2)}")
     
     time_str = call.data.get("time")
+    sound = call.data.get("sound")
+    repeat = call.data.get("repeat")
     entity_id = call.data.get("entity_id")
     
-    _LOGGER.debug(f"Processing set_alarm: time={time_str}, entity_id={entity_id}")
+    _LOGGER.debug(f"Processing set_alarm: time={time_str}, entity_id={entity_id}, sound={sound}, repeat={repeat}")
     
     if entity_id:
         try:
@@ -42,7 +45,9 @@ async def handle_set_alarm(call):
                 # Check if this is the right device for this entity_id
                 if entity_id == f"switch.{device.name.lower()}_{device.name.lower()}":
                     _LOGGER.debug(f"Found matching device with entry_id: {entry_id}")
-                    await device.async_set_alarm(time_str)
+                    if sound:
+                        await device.async_set_alarm_sound(sound)
+                    await device.async_set_alarm(time_str, repeat=repeat)
                     _LOGGER.debug(f"Successfully set alarm for {entity_id}")
                     found = True
                     break
@@ -111,8 +116,19 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Alarm Clock component."""
     hass.data.setdefault(DOMAIN, {})
     
+    # Register static path for custom card
+    hass.http.register_static_path(
+        "/alarm-clock-ui",
+        hass.config.path("custom_components/hass-alarmclock/www"),
+        cache_headers=False
+    )
+    
     # Register services
     await async_register_services(hass)
+    
+    # Setup intents for LLM/Assist
+    await async_setup_intents(hass)
+    
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

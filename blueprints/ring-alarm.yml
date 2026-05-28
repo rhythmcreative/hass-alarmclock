@@ -1,6 +1,6 @@
 blueprint:
-  name: Alarm Clock Media Player
-  description: Plays a local media file when the alarm clock is triggered
+  name: Alarm Clock Media Player (Enhanced)
+  description: Plays a local media file when the alarm clock is triggered. Support custom sounds from the event data.
   domain: automation
   input:
     alarm_sensor:
@@ -16,12 +16,6 @@ blueprint:
       selector:
         entity:
           domain: media_player
-    media_file:
-      name: Media File
-      description: Local media file (e.g., wekker.mp3)
-      default: "wekker.mp3"
-      selector:
-        text:
 
 trigger:
   - platform: state
@@ -33,11 +27,15 @@ action:
     target:
       entity_id: !input media_player
     data:
-      media_content_id: !expand
-        media-source://media_source/local/{{ media_file }}
+      media_content_id: >
+        {% if trigger.to_state.attributes.alarm_sound is defined %}
+          media-source://media_source/local/{{ trigger.to_state.attributes.alarm_sound }}
+        {% else %}
+          media-source://media_source/local/wekker.mp3
+        {% endif %}
       media_content_type: audio/mpeg
     metadata:
-      title: !input media_file
+      title: Alarm Sound
       thumbnail: null
       media_class: music
       children_media_class: null
