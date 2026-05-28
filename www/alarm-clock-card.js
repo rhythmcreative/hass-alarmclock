@@ -9,9 +9,11 @@ class AlarmClockCard extends HTMLElement {
     const entityId = config.entity;
     const baseId = entityId.split('.')[1].replace('_status', '');
     const timeEntity = config.time_entity || `datetime.${baseId}_time`;
+    const repeatEntity = config.repeat_entity || `text.${baseId}_repeat_pattern`;
     
     const stateObj = hass.states[entityId];
     const timeObj = hass.states[timeEntity];
+    const repeatObj = hass.states[repeatEntity];
 
     let timeDisplay = '--:--';
     if (timeObj && timeObj.state && !['unknown', 'unavailable'].includes(timeObj.state)) {
@@ -19,29 +21,38 @@ class AlarmClockCard extends HTMLElement {
         timeDisplay = val.includes('T') ? val.split('T')[1].substring(0, 5) : val;
     }
     
+    const repeatDisplay = repeatObj ? repeatObj.state : '';
     const isOn = stateObj && stateObj.state === 'on';
 
     this.content.innerHTML = `
       <style>
         #container {
           display: flex;
+          flex-direction: column;
           align-items: center;
-          gap: 8px;
-          padding: 4px;
+          gap: 2px;
+          padding: 8px;
           cursor: pointer;
         }
         ha-icon {
-          --mdc-icon-size: 20px;
+          --mdc-icon-size: 22px;
           color: ${isOn ? 'var(--primary-color)' : 'var(--disabled-text-color)'};
         }
         .time {
-          font-size: 18px;
+          font-size: 20px;
           font-weight: 500;
           color: var(--primary-text-color);
+          line-height: 1.2;
+        }
+        .repeat {
+          font-size: 11px;
+          color: var(--secondary-text-color);
+          line-height: 1;
         }
       </style>
       <ha-icon icon='mdi:alarm'></ha-icon>
       <div class='time'>${timeDisplay}</div>
+      <div class='repeat'>${repeatDisplay}</div>
     `;
 
     this.content.onclick = () => {
