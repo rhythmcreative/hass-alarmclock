@@ -17,7 +17,7 @@ from homeassistant.components.http import StaticPathConfig
 from .const import (
     DOMAIN,
     CONF_SNOOZE_DURATION,
-    PLATFORMS,
+    PLATFORMS, CONF_MEDIA_PLAYER,
 )
 from .device import AlarmClockDevice
 from .intent import async_setup_intents
@@ -118,15 +118,13 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     hass.data.setdefault(DOMAIN, {})
     
     # Register static path for custom card
-    await hass.http.async_register_static_paths(
-        [
-            StaticPathConfig(
-                "/alarm-clock-ui",
-                hass.config.path("custom_components/alarm_clock/www"),
-                False,
-            )
-        ]
-    )
+    await hass.http.async_register_static_paths([
+        StaticPathConfig(
+            "/alarm-clock-ui",
+            hass.config.path("custom_components/alarm_clock/www"),
+            False,
+        )
+    ])
     
     # Register services
     await async_register_services(hass)
@@ -140,6 +138,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Alarm Clock from a config entry."""
     name = entry.data[CONF_NAME]
     snooze_duration = entry.data.get(CONF_SNOOZE_DURATION, 9)
+    media_player = entry.data.get(CONF_MEDIA_PLAYER)
 
     # Create device
     device = AlarmClockDevice(
@@ -147,6 +146,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.entry_id,
         name,
         snooze_duration,
+        media_player,
     )
     
     # Store device reference

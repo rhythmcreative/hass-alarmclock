@@ -159,7 +159,8 @@ class AlarmClockDevice:
             f"{DOMAIN}_triggered",
             {
                 "alarm_id": f"alarm_clock_{self.name.lower().replace(' ', '_')}",
-                "alarm_sound": self._alarm_sound
+                "alarm_sound": self._alarm_sound,
+                "media_player": self._media_player
             }
         )
 

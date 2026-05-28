@@ -10,7 +10,7 @@ from homeassistant.const import CONF_NAME
 from homeassistant.data_entry_flow import FlowResult
 import homeassistant.helpers.config_validation as cv
 
-from .const import DOMAIN, CONF_SNOOZE_DURATION
+from .const import DOMAIN, CONF_SNOOZE_DURATION, CONF_MEDIA_PLAYER
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,6 +45,7 @@ class AlarmClockConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Optional(CONF_SNOOZE_DURATION, default=9): vol.All(
                         vol.Coerce(int), vol.Range(min=1, max=60)
                     ),
+                    vol.Optional(CONF_MEDIA_PLAYER): cv.entity_id,
                 }
             ),
             errors=errors,

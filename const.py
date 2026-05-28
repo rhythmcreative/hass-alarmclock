@@ -9,6 +9,7 @@ DOMAIN = "alarm_clock"
 CONF_SNOOZE_DURATION = "snooze_duration"
 CONF_ALARM_TIME = "time"
 CONF_ALARM_SOUND = "alarm_sound"
+CONF_MEDIA_PLAYER = "media_player"
 CONF_REPEAT = "repeat"
 
 # Attributes
